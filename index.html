@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Лабораторна робота: Створення інтерактивної вебіграшки на GitHub Pages</title>
+    <style>
+        :root {
+            --primary-color: #ff6b6b;
+            --secondary-color: #4ecdc4;
+            --accent-color: #ffe66d;
+            --bg-color: #f7f9fc;
+            --card-bg: #ffffff;
+            --text-color: #2c3e50;
+            --border-color: #e2e8f0;
+            --success-color: #2ecc71;
+            --purple-color: #a29bfe;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            border: 2px solid #edf2f7;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #ff758c, #ff7eb3);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 800;
+        }
+
+        header p {
+            margin: 8px 0 0 0;
+            font-size: 0.98rem;
+            opacity: 0.95;
+        }
+
+        nav.step-tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2px;
+            background: #cbd5e1;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .tab-btn {
+            padding: 14px 10px;
+            border: none;
+            background: #f1f5f9;
+            font-weight: 700;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #d63031;
+            box-shadow: inset 0 -4px 0 #ff7675;
+        }
+
+        .step-content {
+            display: none;
+            padding: 25px;
+        }
+
+        .step-content.active {
+            display: block;
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 22px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #d63031;
+            margin-top: 0;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px dashed #ffeaa7;
+            padding-bottom: 8px;
+        }
+
+        .variant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .v-btn {
+            padding: 14px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: #f8fafc;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-align: left;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .v-btn.selected {
+            border-color: #ff7675;
+            background: #ffeaa7;
+            color: #d63031;
+        }
+
+        .prompt-box {
+            background-color: #fff9db;
+            border-left: 5px solid #f1c40f;
+            padding: 16px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.88rem;
+            color: #2c3e50;
+            position: relative;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #f1c40f;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.82rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-copy:hover {
+            background: #f39c12;
+            color: white;
+        }
+
+        .info-box {
+            background-color: #e8f8f5;
+            border-left: 5px solid #2ecc71;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.92rem;
+            color: #16a085;
+        }
+
+        .instruction-step {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 16px;
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: #ff7675;
+            color: white;
+            font-weight: 800;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1rem;
+        }
+
+        .step-text {
+            background: #f8fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            flex-grow: 1;
+            font-size: 0.92rem;
+        }
+
+        .badge-important {
+            background: #ff7675;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #34495e;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            background: #f8fafc;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .btn-success { background: #2ecc71; color: white; }
+        .btn-success:hover { background: #27ae60; }
+
+        @media print {
+            nav, .btn, .btn-copy { display: none !important; }
+            body { padding: 0; background: white; }
+            .container { border: none; box-shadow: none; }
+            .step-content { display: block !important; page-break-after: always; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🎈 Практикум: Створення інтерактивної вебіграшки для дітей на GitHub Pages</h1>
+        <p>Для здобувачів спеціальностей «Початкова освіта» та «Дошкільна освіта» (Комп'ютерно-орієнтовані технології)</p>
+    </header>
+
+    <nav class="step-tabs">
+        <button class="tab-btn active" onclick="switchStep(0)">1. Вибір ідеї та Промпт</button>
+        <button class="tab-btn" onclick="switchStep(1)">2. Генерування коду в ШІ</button>
+        <button class="tab-btn" onclick="switchStep(2)">3. Створення проєкту на GitHub</button>
+        <button class="tab-btn" onclick="switchStep(3)">4. Вбудовування в Google Сайт</button>
+        <button class="tab-btn" onclick="switchStep(4)">5. Звітність</button>
+    </nav>
+
+    <!-- КРОК 1: ВИБІР ІДЕЇ ТА ПРОМПТИ -->
+    <div class="step-content active" id="step0">
+        <div class="card">
+            <div class="card-title">✨ Крок 1. Оберіть варіант дитячої вебіграшки</div>
+            <p style="font-size: 0.92rem;">Оберіть одну із 6 готових ідей (або вигадайте власну). Нижче з'явиться готовий промпт, який потрібно скопіювати та надіслати в будь-який ШІ (ChatGPT, Claude, Gemini):</p>
+            
+            <div class="variant-grid">
+                <button class="v-btn selected" onclick="selectVariant(1)">🔤 1. Тренажер літер та звуків</button>
+                <button class="v-btn" onclick="selectVariant(2)">🔢 2. Математична лічилочка</button>
+                <button class="v-btn" onclick="selectVariant(3)">🦊 3. Казка-квест «Куди піде зайчик?»</button>
+                <button class="v-btn" onclick="selectVariant(4)">🐱 4. Гра «Хто де живе та що їсть?»</button>
+                <button class="v-btn" onclick="selectVariant(5)">🤸 5. Весела музична фізкультхвилинка</button>
+                <button class="v-btn" onclick="selectVariant(6)">☀️ 6. Інтерактивний календар погоди</button>
+            </div>
+
+            <div id="promptContainer"></div>
+        </div>
+    </div>
+
+    <!-- КРОК 2: ГЕНЕРУВАННЯ КОДУ В ШІ -->
+    <div class="step-content" id="step1">
+        <div class="card">
+            <div class="card-title">🤖 Крок 2. Отримання та збереження HTML-коду</div>
+            
+            <div class="info-box">
+                💡 <b>Вам НЕ потрібно писати код самостійно!</b> ШІ згенерує для вас повністю готовий файл. Ваше завдання — скопіювати його без змін.
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-text">Відкрийте <b>ChatGPT</b> (або Claude / Gemini).</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-text">Вставте скопійований з Кроку 1 промпт у поле повідомлення та натисніть <b>Надіслати</b>.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-text">ШІ згенерує блок з кодом. У верхньому правому кутку блоку з кодом натисніть кнопку <b>Copy code</b> (Скопіювати код).</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- КРОК 3: СТВОРЕННЯ ПРОЄКТУ НА GITHUB -->
+    <div class="step-content" id="step2">
+        <div class="card">
+            <div class="card-title">🚀 Крок 3. Покрокове створення вебіграшки на GitHub Pages</div>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-text">Увійдіть на свій акаунт у <b>GitHub.com</b>.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-text">У верхньому правому кутку екрана натисніть значок <b><code>+</code></b> ➔ оберіть <b>New repository</b> (Новий репозиторій).</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-text">У полі <b>Repository name</b> напишіть англійською назву вашої гри (наприклад: <code>my-game</code> або <code>kids-app</code>). Переконайтеся, що обрано <b>Public</b>, і обов'язково поставте галочку <b>Add a README file</b>. Натисніть зелену кнопку <b>Create repository</b>.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">4</div>
+                <div class="step-text">У створеному репозиторії натисніть кнопку <b>Add file</b> ➔ оберіть <b>Create new file</b>.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">5</div>
+                <div class="step-text">У верхньому полі назви файлу <span class="badge-important">ОБОВ'ЯЗКОВО НАПИШІТЬ ЧІТКО:</span> <b><code>index.html</code></b> (суто малими літерами).</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">6</div>
+                <div class="step-text">У велике текстове поле знизу вставте скопійований з ChatGPT код (<b>Ctrl + V</b>).</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">7</div>
+                <div class="step-text">Натисніть зелену кнопку <b>Commit changes...</b> у правому верхньому кутку та підтвердіть збереження, натиснувши <b>Commit changes</b>.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">8</div>
+                <div class="step-text"><b>Публікація гри в інтернет:</b> Перейдіть у вкладку <b>Settings</b> (Налаштування) зверху ➔ у лівому меню натисніть <b>Pages</b> ➔ у блоці <i>Branch</i> виберіть <b><code>main</code></b> (або <code>master</code>) ➔ натисніть <b>Save</b>.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">9</div>
+                <div class="step-text">Зачекайте 1–2 хвилини, оновіть сторінку F5. Угорі з'явиться зелене посилання на вашу гру видами: <code>https://username.github.io/my-game/</code>. Скопіюйте його!</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- КРОК 4: ВБУДОВУВАННЯ В GOOGLE САЙТ -->
+    <div class="step-content" id="step3">
+        <div class="card">
+            <div class="card-title">🌐 Крок 4. Вбудовування гри у персональний Google Сайт</div>
+            
+            <div class="instruction-step">
+                <div class="step-number">1</div>
+                <div class="step-text">Відкрийте ваш персональний <b>Google Сайт</b> у режимі редагування.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">2</div>
+                <div class="step-text">На правій панелі інструментів натисніть кнопку <b>Вставити (Embed)</b> ➔ оберіть вкладку <b>З URL-адресою</b>.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">3</div>
+                <div class="step-text">Вставте скопійоване посилання вашого сайту з GitHub Pages (наприклад: <code>https://...github.io/my-game/</code>) та натисніть <b>Вставити</b>.</div>
+            </div>
+
+            <div class="instruction-step">
+                <div class="step-number">4</div>
+                <div class="step-text">Розтягніть вікно з грою на потрібну ширину сторінки та натисніть кнопку <b>Опублікувати</b> на Google Сайті.</div>
+            </div>
+
+            <div class="info-box" style="margin-top: 15px;">
+                💡 <b>Зауваження:</b> За бажанням у майбутньому у цю вебіграшку або поруч на сторінці ви зможете додавати додаткові матеріали з Canva, Всеосвіти чи LearningApps, але ваша згенерована вебіграшка вже є повністю автономною та працює самостійно!
+            </div>
+        </div>
+    </div>
+
+    <!-- КРОК 5: ЗВІТНІСТЬ -->
+    <div class="step-content" id="step4">
+        <div class="card">
+            <div class="card-title">📝 Крок 5. Звіт про виконання роботи</div>
+            
+            <div class="form-group">
+                <label>ПІБ здобувача вищої освіти (студента):</label>
+                <input type="text" id="studentName" placeholder="Петренко Олена Миколаївна">
+            </div>
+
+            <div class="form-group">
+                <label>Обраний варіант / тема вебіграшки:</label>
+                <input type="text" id="variantTitle" placeholder="Варіант 1. Тренажер літер та звуків">
+            </div>
+
+            <div class="form-group">
+                <label>Посилання на створену вебіграшку на GitHub Pages (URL):</label>
+                <input type="text" id="githubUrl" placeholder="https://username.github.io/my-game/">
+            </div>
+
+            <div class="form-group">
+                <label>Посилання на сторінку Google Сайту з вбудованою грою (URL):</label>
+                <input type="text" id="siteUrl" placeholder="https://sites.google.com/view/my-teacher-site/...">
+            </div>
+
+            <button class="btn btn-success" onclick="generateReport()">📄 Згенерувати підсумковий звіт</button>
+
+            <div id="reportOutput" style="display:none; margin-top:15px; padding:15px; background:white; border:1px solid var(--border-color); border-radius:8px;"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const prompts = {
+        1: `ПРОМПТ ДЛЯ ШІ (ВАРІАНТ 1: Тренажер літер та звуків):
+
+Напиши повністю готовий, автономний HTML-код (в одному файлі index.html, із вбудованими CSS та JavaScript) для дитячого інтерактивного тренажера вивчення літер (для дошкільнят та 1 класу).
+
+Вимоги до гри:
+1. Яскравий, дитячий дизайн (великі кольорові кнопки-картки з буквами А, Б, В, Г, Д, Е).
+2. При натисканні на кнопку з буквою відкривається велика картка з малюнком (наприклад: А — Апельсин 🍊, Б — Бджола 🐝, В — Вовк 🐺) та коротким веселим віршиком з 2-х рядків.
+3. Додай кнопку «Послухати звук», яка за допомогою браузерного виводу голосу (Web Speech API) озвучує букву українською мовою.
+4. Весь код має бути в ОДНОМУ файлі без зовнішніх посилань та файлів зображень (використовуй великі яскраві емодзі).`,
+
+        2: `ПРОМПТ ДЛЯ ШІ (ВАРІАНТ 2: Математична лічилочка):
+
+Напиши повністю готовий, автономний HTML-код (в одному файлі index.html, із вбудованими CSS та JavaScript) для дитячої математичної вебіграшки «Весела лічилка в межах 10» (для дошкільнят/1 класу).
+
+Вимоги до гри:
+1. Гра показує яскраве завдання із фруктами/іграшками (наприклад: 3 🍎 + 2 🍎 = ?).
+2. Дитина бачить 3 великі кольорові кнопки з варіантами відповідей.
+3. При виборі правильної відповіді з'являється анімація похвали («Молодець! 🌟»), лунає приємна звукова тональність (через Web Audio API) і додається +1 бал.
+4. При помилці гра дружньо просить спробувати ще раз.
+5. Весь код має бути в ОДНОМУ файлі, готовий до запуску у браузері.`,
+
+        3: `ПРОМПТ ДЛЯ ШІ (ВАРІАНТ 3: Казка-квест «Куди піде зайчик?»):
+
+Напиши повністю готовий, автономний HTML-код (в одному файлі index.html, із вбудованими CSS та JavaScript) для інтерактивної дитячої казки-квесту з вибором дій.
+
+Вимоги до гри:
+1. Сюжет про маленьке Зайченя 🐰 у чарівному лісі.
+2. На кожному кроці показується коротка текстова сценка (2-3 речення) з великим яскравим емодзі-малюнком.
+3. Дитині пропонуються 2 кнопки вибору дій (наприклад: «Піти до струмочка 🌊» або «Заозирнути у дупло 🌳»).
+4. Залежно від вибору сюжет розвивається далі (усього 3-4 поворотні моменти) і приводить до доброї фінальної розв'язки про дружбу.
+5. Весь код має бути в ОДНОМУ файлі без зовнішніх залежностей.`,
+
+        4: `ПРОМПТ ДЛЯ ШІ (ВАРІАНТ 4: Гра «Хто де живе та що їсть?»):
+
+Напиши повністю готовий, автономний HTML-код (в одному файлі index.html, із вбудованими CSS та JavaScript) для дитячої розвивальної гри-вікторини «Вгадай тваринку» (для дітей 4-6 років).
+
+Вимоги до гри:
+1. Гра ставить запитання (наприклад: «Хто любить їсти банан? 🍌» або «Хто живе у будці? 🐶»).
+2. Нижче розміщено 4 яскраві кнопки-картки з емодзі тварин (Мавпочка 🐒, Собачка 🐶, Зайчик 🐰, Котик 🐱).
+3. При натисканні на правильну картку гра показує веселу анімацію, озвучує похвалу та переходить до наступного запитання.
+4. Обов'язковий лічильник успішно виконаних завдань.
+5. Код має бути в одному файлі index.html.`,
+
+        5: `ПРОМПТ ДЛЯ ШІ (ВАРІАНТ 5: Весела музична фізкультхвилинка):
+
+Напиши повністю готовий, автономний HTML-код (в одному файлі index.html, із вбудованими CSS та JavaScript) для інтерактивної фізкультхвилинки з анімованим персонажем-тренером.
+
+Вимоги до гри:
+1. На екрані великий анімований персонаж (наприклад, Ведмедик 🐻 чи Робот 🤖) та таймер зворотного відліку на 20 секунд.
+2. Кнопки вибору вправ: «Пострибай як зачик 🐰», «Покрутися як млин 🌀», «Потягнися до сонечка ☀️».
+3. При запуску вправи таймер відлічує час, персонаж підбадьорює текстовими підказками, а в кінці вискакують салюти та похвальний саунд-ефект.
+4. Весь код має бути в ОДНОМУ файлі index.html.`,
+
+        6: `ПРОМПТ ДЛЯ ШІ (ВАРІАНТ 6: Інтерактивний календар погоди):
+
+Напиши повністю готовий, автономний HTML-код (в одному файлі index.html, із вбудованими CSS та JavaScript) для інтерактивного дитячого календаря погоди та настрою для ранкових зустрічей у дитсадку чи 1 класі.
+
+Вимоги до програми:
+1. Великі яскраві блоки для вибору:
+   - Погода сьогодні (Сонячно ☀️, Дощ 🌧️, Хмаринка ☁️, Сніг ❄️, Вітер 🌬️);
+   - День тижня (Понеділок... П'ятниця);
+   - Настрій дитини (Веселий 😃, Мрійливий 😇, Бадьорий ⚡).
+2. При виборі кожного елемента екран змінює свій колір фону та показує інтерактивну підсумкову картку: «Сьогодні сонячний понеділок з чудовим настроєм!».
+3. Весь код в одному файлі index.html.`
+    };
+
+    function switchStep(idx) {
+        document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === idx));
+        document.querySelectorAll('.step-content').forEach((s, i) => s.classList.toggle('active', i === idx));
+    }
+
+    function selectVariant(v) {
+        document.querySelectorAll('.v-btn').forEach((btn, i) => {
+            btn.classList.toggle('selected', i === (v - 1));
+        });
+
+        const container = document.getElementById('promptContainer');
+        container.innerHTML = `
+            <div class="prompt-box">
+                <button class="btn-copy" onclick="copyPrompt()">📋 Скопіювати промпт для ШІ</button>
+                <div id="promptText">${prompts[v]}</div>
+            </div>
+        `;
+    }
+
+    function copyPrompt() {
+        const text = document.getElementById('promptText').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Промпт успішно скопійовано! Вставте його у ChatGPT, Claude або Gemini.');
+        });
+    }
+
+    function generateReport() {
+        const name = document.getElementById('studentName').value || 'Студент';
+        const variant = document.getElementById('variantTitle').value || 'Не вказано';
+        const gh = document.getElementById('githubUrl').value || '-';
+        const site = document.getElementById('siteUrl').value || '-';
+
+        const out = document.getElementById('reportOutput');
+        out.style.display = 'block';
+        out.innerHTML = `
+            <h3 style="color:#27ae60; margin-top:0;">✅ Звіт успішно сформовано!</h3>
+            <p><b>Здобувач вищої освіти:</b> ${name}</p>
+            <p><b>Тема роботи:</b> ${variant}</p>
+            <p><b>Вебіграшка на GitHub Pages:</b> <a href="${gh}" target="_blank">${gh}</a></p>
+            <p><b>Google Сайт з вбудованою грою:</b> <a href="${site}" target="_blank">${site}</a></p>
+            <p style="font-size:0.85rem; color:#7f8c8d;">Скопіюйте ці дані або збережіть сторінку для відправки викладачу у Moodle.</p>
+        `;
+    }
+
+    // Автозавантаження першого варіанта
+    selectVariant(1);
+</script>
+</body>
+</html>
